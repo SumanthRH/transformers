@@ -94,6 +94,7 @@ from .trainer_pt_utils import (
     nested_xla_mesh_reduce,
     reissue_pt_warnings,
     remove_dummy_checkpoint,
+    check_if_model_is_bf16
 )
 from .trainer_utils import (
     PREFIX_CHECKPOINT_DIR,
@@ -554,6 +555,9 @@ class Trainer:
         # Mixed precision setup
         self.use_apex = False
         self.use_cpu_amp = False
+
+        if isinstance(model, PreTrainedModel):
+            check_if_model_is_bf16(model, args)
 
         # Mixed precision setup for SageMaker Model Parallel
         if is_sagemaker_mp_enabled():

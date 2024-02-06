@@ -1103,6 +1103,15 @@ def remove_dummy_checkpoint(is_main_process, output_dir, filenames):
             if os.path.isfile(file):
                 os.remove(file)
 
+def check_if_model_is_bf16(model, args):
+    if model.dtype == torch.bfloat16 and not args.bf16:
+        raise Warning("The model has been loaded in BFloat16 format. This means that the optimizer state and gradients will all be in BF16."
+                      "If you intended to use the model for mixed precision training, please initialize the model in full precision and pass "
+                      "`bf16=True` for the `Trainer`")
+    if model.dtype == torch.bfloat16 and args.bf16:
+        raise ValueError("`bf16=True` has been set but model has been loaded in bf16. For mixed precision training, the model must be loaded "
+                         "in full-precision. `Trainer` will handle autocasting various tensors to the right dtype")
+    return
 
 if is_sagemaker_mp_enabled():
     import smdistributed.modelparallel.torch as smp
